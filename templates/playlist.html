@@ -11,7 +11,9 @@ content %}
     <h3>{{ file }}</h3>
     <p>Ajouté par : {{ uploads.get(file, "Inconnu") }}</p>
     <audio controls src="{{ url_for('uploaded_file', filename=file) }}"></audio>
-    <button onclick="addFavorite('{{ file }}')">⭐ Favori</button>
+    <a href="{{ url_for('add_favorite', filename=file) }}"
+      >⭐ Ajouter aux favoris</a
+    >
   </div>
   {% endfor %}
 </div>
