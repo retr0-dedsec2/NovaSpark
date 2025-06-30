@@ -1,0 +1,129 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Courier New', monospace;
+  background: linear-gradient(to bottom, #000010, #000020);
+  color: #eee;
+}
+
+main {
+  flex: 1;
+  padding: 20px;
+  text-align: center;
+  /* Ajout si footer fixed */
+  padding-bottom: 60px; /* hauteur approximative du footer */
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0c0c0c;
+  padding: 20px 40px;
+  border-bottom: 2px solid #00ffcc;
+}
+
+.logo {
+  height: 50px;
+  border-radius: 41px;
+}
+
+
+.open-btn {
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.user-info {
+  margin-left: auto;
+}
+
+.side-menu {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  top: 0;
+  right: 0;
+  background: #111;
+  overflow-x: hidden;
+  transition: 0.3s;
+  padding-top: 60px;
+}
+.side-menu {
+  right: 0;
+}
+
+.side-menu a {
+  display: block;
+  padding: 10px 30px;
+  color: #eee;
+  text-decoration: none;
+}
+
+.side-menu a:hover {
+  background: #00ffcc;
+  color: #111;
+}
+
+.side-menu .close-btn {
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  font-size: 2em;
+}
+
+footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  padding: 20px;
+  background: #0c0c0c;
+  text-align: center;
+  border-top: 2px solid #00ffcc;
+  font-size: 0.9em;
+  color: #ccc;
+}
+
+footer p {
+  margin: 10px;
+  text-align: center;
+}
+
+.playlist {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.playlist-item {
+  background: #111;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow:
+  0em 0 2em #00ffcc;
+}
+
+.media-icon {
+  font-size: 1.5em;
+}
+
+form input[type="text"],
+form input[type="password"] {
+  background: #0b0b0b;
+  border: none;
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+}
+main ul {
+  list-style: none;
+}
+
+.playlist-item a {
+  text-decoration: none;
+  color: white;
+}

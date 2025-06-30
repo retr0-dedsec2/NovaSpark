@@ -1,0 +1,29 @@
+{% extends "base.html" %} {% block title %}Search{% endblock %} {% block content
+%}
+<h1>Recherche</h1>
+<form method="post">
+  <input
+    type="text"
+    name="query"
+    placeholder="Rechercher..."
+    value="{{ query }}"
+  />
+  <button type="submit">Rechercher</button>
+</form>
+{% if query %}
+<h2>Résultats pour "{{ query }}"</h2>
+{% if results %}
+<div class="playlist">
+  {% for file in results %}
+  <div class="playlist-item">
+    <span class="media-icon"
+      >{{ '🎬' if file.endswith('.mp4') else '🎵' }}</span
+    >
+    <h3>{{ file }}</h3>
+    <audio controls src="{{ url_for('uploaded_file', filename=file) }}"></audio>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p>Aucun résultat.</p>
+{% endif %} {% endif %} {% endblock %}
