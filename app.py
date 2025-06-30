@@ -91,7 +91,9 @@ def upload():
     if "username" not in session:
         flash("Vous devez être connecté.")
         return redirect(url_for("login"))
-
+    UPLOADS[filename] = session["username"]
+    with open(UPLOADS_FILE, "w") as f:
+        json.dump(UPLOADS, f)
     if request.method == "POST":
         if "file" not in request.files:
             flash("Aucun fichier sélectionné.")
@@ -129,7 +131,7 @@ def playlist():
         for f in os.listdir(UPLOAD_FOLDER)
         if f.split(".")[-1].lower() in ALLOWED_EXTENSIONS
     ]
-    return render_template("playlist.html", files=files)
+    return render_template("playlist.html", files=files, uploads=UPLOADS)
 
 
 @app.route("/assets/<filename>")
@@ -236,6 +238,16 @@ def show_favorites():
     user = session["username"]
     favs = favorites_db.get(user, [])
     return render_template("favorites.html", favorites=favs)
+
+
+UPLOADS_FILE = "uploads.json"
+
+# Charger l'historique des uploads
+if os.path.exists(UPLOADS_FILE):
+    with open(UPLOADS_FILE, "r") as f:
+        UPLOADS = json.load(f)
+else:
+    UPLOADS = {}
 
 
 # ---------- Lancer l'application ----------
