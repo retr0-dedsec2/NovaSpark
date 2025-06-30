@@ -5,12 +5,13 @@ content %}
 <div class="playlist">
   {% for file in files %}
   <div class="playlist-item">
-    <span class="media-icon"
-      >{{ '🎬' if file.endswith('.mp4') else '🎵' }}</span
-    >
+    <span class="media-icon">
+      {{ '🎬' if file.endswith('.mp4') else '🎵' }}
+    </span>
     <h3>{{ file }}</h3>
+    <p>Ajouté par : {{ uploads.get(file, "Inconnu") }}</p>
     <audio controls src="{{ url_for('uploaded_file', filename=file) }}"></audio>
-    <a href="{{ url_for('add_favorite', filename=file) }}">⭐ Favori</a>
+    <button onclick="addFavorite('{{ file }}')">⭐ Favori</button>
   </div>
   {% endfor %}
 </div>
