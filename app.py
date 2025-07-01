@@ -256,24 +256,25 @@ def download():
 
         output_template = os.path.join("assets", "%(title)s.%(ext)s")
 
-        # Configuration yt-dlp
+        ydl_opts = {
+            "outtmpl": output_template,
+            "cookiefile": "cookies.txt",
+        }
+
         if fmt in ["mp3", "wav"]:
-            ydl_opts = {
+            ydl_opts.update({
                 "format": "bestaudio/best",
-                "outtmpl": output_template,
                 "postprocessors": [{
                     "key": "FFmpegExtractAudio",
                     "preferredcodec": fmt,
                     "preferredquality": "192",
                 }],
-            }
+            })
         else:
-            ydl_opts = {
+            ydl_opts.update({
                 "format": "bestvideo+bestaudio/best",
-                "outtmpl": output_template,
-            }
+            })
 
-        # Télécharger avec yt-dlp
         try:
             import yt_dlp
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -288,7 +289,6 @@ def download():
 
         return redirect(url_for("playlist"))
 
-    # Si GET, afficher le formulaire
     return render_template(
         "download_video.html",
         background_image="/static/bg_download.jpg"
