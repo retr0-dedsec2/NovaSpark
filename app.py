@@ -241,53 +241,6 @@ def profile(username):
         background_image="/static/bg_profile.jpg",
     )
 
-@app.route("/download", methods=["GET", "POST"])
-def download():
-    if request.method == "POST":
-        url = request.form.get("keyword")
-        fmt = request.form.get("format")
-
-        if not url:
-            flash("Aucune URL fournie.")
-            return render_template("download_video.html")
-
-        output_template = os.path.join("assets", "%(title)s.%(ext)s")
-
-        ydl_opts = {
-            "outtmpl": output_template,
-            "cookiefile": "cookies.txt",
-            "noplaylist": True,
-            "cookiesfrombrowser": ("chrome", "firefox"),
-        }
-
-        if fmt in ["mp3", "wav"]:
-            ydl_opts.update({
-                "format": "bestaudio/best",
-                "postprocessors": [{
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": fmt,
-                    "preferredquality": "192",
-                }],
-            })
-        else:
-            ydl_opts.update({
-                "format": "bestvideo+bestaudio/best",
-            })
-
-        try:
-            import yt_dlp
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([url])
-            flash(f"Téléchargement terminé : {url} en {fmt}")
-        except Exception as e:
-            flash(f"Erreur pendant le téléchargement : {str(e)}")
-            return render_template("download_video.html")
-
-        return redirect(url_for("playlist"))
-
-    return render_template("download_video.html")
-
-
 @app.route("/search_spotify", methods=["GET", "POST"])
 def search_spotify():
     results = []
