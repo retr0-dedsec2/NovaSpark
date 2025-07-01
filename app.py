@@ -160,6 +160,20 @@ def add_favorite(filename):
         flash(f"{filename} est déjà dans vos favoris.")
     return redirect(url_for("playlist"))
 
+@app.route("/search", methods=["GET", "POST"])
+def search():
+    query = ""
+    results = []
+    if request.method == "POST":
+        query = request.form.get("query", "").lower()
+        files = [
+            f
+            for f in os.listdir(UPLOAD_FOLDER)
+            if f.split(".")[-1].lower() in ALLOWED_EXTENSIONS
+        ]
+        results = [f for f in files if query in f.lower()]
+    return render_template("search.html", results=results, query=query)
+
 @app.route("/favorites")
 def show_favorites():
     if "username" not in session:
