@@ -2,3 +2,4 @@ Flask
 firebase-admin
 spotipy
 gunicorn
+yt_dlp
