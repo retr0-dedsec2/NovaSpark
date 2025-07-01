@@ -241,44 +241,41 @@ def profile(username):
         background_image="/static/bg_profile.jpg",
     )
 
+@app.route("/download", methods=["POST"])
+def download():
+    url = request.form.get("keyword")
+    fmt = request.form.get("format")
 
-@app.route("/download", methods=["GET", "POST"])
-def download_video():
-    if request.method == "POST":
-        keyword = request.form.get("keyword")
-        fmt = request.form.get("format")
+    if not url:
+        flash("Aucune URL fournie.")
+        return redirect(url_for("search"))
 
-        # Crée un nom de fichier de sortie
-        output_template = os.path.join(UPLOAD_FOLDER, "%(title)s.%(ext)s")
+    output_template = os.path.join("assets", "%(title)s.%(ext)s")
 
-        # Options selon le format choisi
-        if fmt in ["mp3", "mp3hd", "wav"]:
-            ydl_opts = {
-                "format": "bestaudio/best",
-                "outtmpl": output_template,
-                "postprocessors": [
-                    {
-                        "key": "FFmpegExtractAudio",
-                        "preferredcodec": "mp3" if fmt.startswith("mp3") else fmt,
-                        "preferredquality": "192" if fmt == "mp3" else "1411",
-                    }
-                ],
-            }
-        else:
-            # Pour les formats vidéo
-            ydl_opts = {
-                "format": "bestvideo+bestaudio/best",
-                "outtmpl": output_template,
-            }
+    if fmt in ["mp3", "wav"]:
+        ydl_opts = {
+            "format": "bestaudio/best",
+            "outtmpl": output_template,
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": fmt,
+                "preferredquality": "192",
+            }],
+        }
+    else:
+        ydl_opts = {
+            "format": "bestvideo+bestaudio/best",
+            "outtmpl": output_template,
+        }
 
-        # Téléchargement
+    try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([keyword])
+            ydl.download([url])
+        flash(f"Téléchargement terminé : {url}")
+    except Exception as e:
+        flash(f"Erreur : {str(e)}")
 
-        flash(f"Téléchargement terminé pour : {keyword} en {fmt}")
-        return redirect(url_for("playlist"))
-
-    return render_template("search.html", background_image="/static/bg_youtube.jpg")
+    return redirect(url_for("playlist"))
 
 
 @app.route("/search_spotify", methods=["GET", "POST"])
