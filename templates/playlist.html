@@ -1,22 +1,24 @@
-{% extends "base.html" %} {% block title %}Playlist{% endblock %} {% block
-content %}
+{% extends "base.html" %}
+{% block title %}Playlist{% endblock %}
+{% block content %}
 <h1>Bibliothèque des musiques</h1>
 {% if files %}
-<div class="playlist">
+<ul>
   {% for file in files %}
-  <div class="playlist-item">
-    <span class="media-icon">
-      {{ '🎬' if file.endswith('.mp4') else '🎵' }}
-    </span>
-    <h3>{{ file }}</h3>
-    <p>Ajouté par : {{ uploads.get(file, "Inconnu") }}</p>
-    <audio controls src="{{ url_for('uploaded_file', filename=file) }}"></audio>
-    <a href="{{ url_for('add_favorite', filename=file) }}"
-      >⭐ Ajouter aux favoris</a
-    >
-  </div>
+  <li>
+    <strong>{{ file }}</strong>
+    <br>
+    <a href="{{ url_for('add_favorite', filename=file) }}">⭐ Ajouter aux favoris</a>
+    <br>
+    {% if file.endswith('.mp4') %}
+      <video controls width="300" src="{{ url_for('uploaded_file', filename=file) }}"></video>
+    {% else %}
+      <audio controls src="{{ url_for('uploaded_file', filename=file) }}"></audio>
+    {% endif %}
+  </li>
   {% endfor %}
-</div>
+</ul>
 {% else %}
 <p>Aucune musique disponible.</p>
-{% endif %} {% endblock %}
+{% endif %}
+{% endblock %}
