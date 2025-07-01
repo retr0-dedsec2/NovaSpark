@@ -241,7 +241,7 @@ def profile(username):
         background_image="/static/bg_profile.jpg",
     )
 
-@app.route("/download", methods=["POST"])
+@app.route("/download", methods=["GET", "POST"])
 def download():
     url = request.form.get("keyword")
     fmt = request.form.get("format")
