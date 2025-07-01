@@ -17,7 +17,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 cred = credentials.Certificate(
-    "C:/Users/gabin/Downloads/novaspark7-8f86a-firebase-adminsdk-fbsvc-34532a70d7.json"
+    "C:/Users/gabin/Downloads/novaspark7-8f86a-firebase-adminsdk-fbsvc-f49453cb6e.json"
 )
 firebase_admin.initialize_app(cred)
 db = firestore.client()
@@ -64,6 +64,51 @@ def save_users():
 
 # ---------- Gestion des favoris ----------
 favorites_db = {}
+FAVORITES_FILE = "favorites.json"
+
+if os.path.exists(FAVORITES_FILE):
+    with open(FAVORITES_FILE, "r") as f:
+        try:
+            favorites_db = json.load(f)
+        except json.JSONDecodeError:
+            favorites_db = {}
+else:
+    favorites_db = {}
+
+# ------ Page Admin --------
+SETTINGS_FILE = "settings.json"
+
+if os.path.exists(SETTINGS_FILE):
+    with open(SETTINGS_FILE, "r") as f:
+        SETTINGS = json.load(f)
+else:
+    SETTINGS = {
+        "site_title": "NovaSpark",
+        "welcome_message": "Bienvenue sur NovaSpark !",
+        "background_image": "./static/",
+    }
+
+
+def save_settings():
+    with open(SETTINGS_FILE, "w") as f:
+        json.dump(SETTINGS, f)
+
+
+@app.route("/admin", methods=["GET", "POST"])
+def admin():
+    if session.get("username") != "admin":
+        flash("Accès réservé à l'administrateur.")
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        SETTINGS["site_title"] = request.form.get("site_title")
+        SETTINGS["welcome_message"] = request.form.get("welcome_message")
+        SETTINGS["background_image"] = request.form.get("background_image")
+        save_settings()
+        flash("Paramètres sauvegardés.")
+        return redirect(url_for("admin"))
+
+    return render_template("admin.html", settings=SETTINGS)
 
 
 # ---------- Fonctions utilitaires ----------
@@ -83,7 +128,9 @@ def index():
         favs = favorites_db.get(user, [])
     else:
         favs = []
-    return render_template("index.html", favorites=favs)
+    return render_template(
+        "index.html", favorites=favs, background_image="/static/background.png"
+    )
 
 
 @app.route("/upload", methods=["GET", "POST"])
@@ -93,22 +140,34 @@ def upload():
         return redirect(url_for("login"))
 
     if request.method == "POST":
-        if "file" not in request.files:
+        file = request.files.get("file")
+        if not file or file.filename == "":
             flash("Aucun fichier sélectionné.")
             return redirect(request.url)
-        file = request.files["file"]
-        if file.filename == "":
-            flash("Aucun fichier sélectionné.")
+
+        if not allowed_file(file.filename):
+            flash("Extension non autorisée.")
             return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            flash("Fichier uploadé avec succès.")
-            return redirect(url_for("upload"))
-        else:
-            flash("Nom invalide ou extension interdite.")
-            return redirect(request.url)
-    return render_template("upload.html")
+
+        filename = secure_filename(file.filename)
+
+        # Ici tu sauvegardes localement
+        save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        file.save(save_path)
+
+        # Enregistre l'uploader
+        UPLOADS[filename] = session["username"]
+
+        # (optionnel) Sauvegarder UPLOADS dans un JSON si tu veux
+        with open("uploads.json", "w") as f:
+            json.dump(UPLOADS, f)
+
+        flash("Fichier uploadé avec succès.")
+        return redirect(url_for("upload"))
+
+    return render_template(
+        "upload.html", settings=SETTINGS, background_image="/static/background4.png"
+    )
 
 
 @app.route("/callback")
@@ -129,7 +188,13 @@ def playlist():
         for f in os.listdir(UPLOAD_FOLDER)
         if f.split(".")[-1].lower() in ALLOWED_EXTENSIONS
     ]
-    return render_template("playlist.html", files=files)
+    return render_template(
+        "playlist.html",
+        files=files,
+        uploads=UPLOADS,
+        settings=SETTINGS,
+        background_image="/static/background3.png",
+    )
 
 
 @app.route("/assets/<filename>")
@@ -149,7 +214,12 @@ def search():
             if f.split(".")[-1].lower() in ALLOWED_EXTENSIONS
         ]
         results = [f for f in files if query in f.lower()]
-    return render_template("search.html", results=results, query=query)
+    return render_template(
+        "search.html",
+        results=results,
+        query=query,
+        background_image="/static/background1.png",
+    )
 
 
 @app.route("/search_spotify", methods=["GET", "POST"])
@@ -163,7 +233,7 @@ def search_spotify():
 
 @app.route("/contact")
 def contact():
-    return render_template("contact.html")
+    return render_template("contact.html", background_image="/static/background6.png")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -178,7 +248,7 @@ def login():
         else:
             flash("Identifiants invalides.")
             return redirect(url_for("login"))
-    return render_template("login.html")
+    return render_template("login.html", background_image="/static/background1.png")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -197,7 +267,7 @@ def register():
         session["username"] = username
         flash("Compte créé et connecté avec succès.")
         return redirect(url_for("index"))
-    return render_template("register.html")
+    return render_template("register.html", background_image="/static/background7.png")
 
 
 @app.route("/visualizer")
@@ -236,6 +306,16 @@ def show_favorites():
     user = session["username"]
     favs = favorites_db.get(user, [])
     return render_template("favorites.html", favorites=favs)
+
+
+UPLOADS_FILE = "uploads.json"
+
+# Charger l'historique des uploads
+if os.path.exists(UPLOADS_FILE):
+    with open(UPLOADS_FILE, "r") as f:
+        UPLOADS = json.load(f)
+else:
+    UPLOADS = {}
 
 
 # ---------- Lancer l'application ----------

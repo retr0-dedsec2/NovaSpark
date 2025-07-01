@@ -8,6 +8,12 @@
     placeholder="Rechercher..."
     value="{{ query }}"
   />
+  <style>
+    body {
+      background: url("{{ background_image }}") no-repeat center center;
+      background-size: cover;
+    }
+  </style>
   <button type="submit">Rechercher</button>
 </form>
 {% if query %}

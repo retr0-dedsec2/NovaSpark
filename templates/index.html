@@ -1,5 +1,11 @@
 {% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
 %}
+<style>
+  body {
+    background: url("{{ background_image }}") no-repeat center center;
+    background-size: cover;
+  }
+</style>
 <h1>Bienvenue sur NovaSpark</h1>
 <p>La plateforme musicale des hackers.</p>
 <h2>Vos musiques en favoris</h2>
