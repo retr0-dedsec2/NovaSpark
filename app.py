@@ -218,22 +218,27 @@ def logout():
     flash("Déconnecté avec succès.")
     return redirect(url_for("index"))
 
-
 @app.route("/add_favorite/<filename>")
 def add_favorite(filename):
-    print("DEBUG SESSION:", session)
     if "username" not in session:
         flash("Vous devez être connecté.")
         return redirect(url_for("login"))
+
     user = session["username"]
-    print("DEBUG USER:", user)
     favorites_db.setdefault(user, [])
+
     if filename not in favorites_db[user]:
         favorites_db[user].append(filename)
         flash(f"{filename} ajouté aux favoris.")
     else:
         flash(f"{filename} est déjà dans vos favoris.")
+
+    # Sauvegarde dans le fichier
+    with open(FAVORITES_FILE, "w") as f:
+        json.dump(favorites_db, f)
+
     return redirect(url_for("playlist"))
+
 
 
 @app.route("/favorites")
