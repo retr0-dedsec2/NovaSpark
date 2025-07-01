@@ -259,7 +259,11 @@ def download():
         ydl_opts = {
             "outtmpl": output_template,
             "cookiefile": "cookies.txt",
+            "extractor_args": {
+                "youtubetab": ["skip=authcheck"]
+            },
         }
+
 
         if fmt in ["mp3", "wav"]:
             ydl_opts.update({
