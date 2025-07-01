@@ -1,35 +1,40 @@
 {% extends "base.html" %} {% block title %}Search{% endblock %} {% block content
 %}
 <h1>Recherche</h1>
+
 <form method="post">
   <input
     type="text"
     name="query"
-    placeholder="Rechercher..."
+    placeholder="Rechercher un fichier ou un utilisateur..."
     value="{{ query }}"
   />
-  <style>
-    body {
-      background: url("{{ background_image }}") no-repeat center center;
-      background-size: cover;
-    }
-  </style>
   <button type="submit">Rechercher</button>
 </form>
+
 {% if query %}
 <h2>Résultats pour "{{ query }}"</h2>
-{% if results %}
+
+{% if results or users %}
 <div class="playlist">
   {% for file in results %}
   <div class="playlist-item">
-    <span class="media-icon"
-      >{{ '🎬' if file.endswith('.mp4') else '🎵' }}</span
-    >
+    <span class="media-icon">
+      {{ '🎬' if file.endswith('.mp4') else '🎵' }}
+    </span>
     <h3>{{ file }}</h3>
     <audio controls src="{{ url_for('uploaded_file', filename=file) }}"></audio>
   </div>
   {% endfor %}
 </div>
-{% else %}
+
+{% if users %}
+<h3>Utilisateurs trouvés</h3>
+<ul>
+  {% for user in users %}
+  <li><a href="{{ url_for('profile', username=user) }}">{{ user }}</a></li>
+  {% endfor %}
+</ul>
+{% endif %} {% else %}
 <p>Aucun résultat.</p>
 {% endif %} {% endif %} {% endblock %}

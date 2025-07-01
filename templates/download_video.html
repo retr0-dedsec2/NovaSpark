@@ -1,0 +1,25 @@
+{% extends "base.html" %} {% block title %}Télécharger YouTube{% endblock %} {%
+block content %}
+<h1>Télécharger une vidéo YouTube</h1>
+
+<form method="post">
+  <input
+    id="keyword"
+    name="keyword"
+    type="search"
+    placeholder="URL ou mots clés..."
+  />
+  <select id="myDropdown" name="format" aria-label="Format">
+    <option value="mp3">MP3</option>
+    <option value="mp3hd">MP3 HD</option>
+    <option value="m4a">M4A</option>
+    <option value="mp4">MP4</option>
+    <option value="mp4hd">MP4 HD</option>
+    <option value="mp42k">MP4 2K</option>
+    <option value="wav">WAV</option>
+    <option value="3gp">3GP</option>
+    <option value="flv">FLV</option>
+  </select>
+  <button type="submit">Télécharger</button>
+</form>
+{% endblock %}
