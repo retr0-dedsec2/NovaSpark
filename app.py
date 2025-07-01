@@ -259,7 +259,7 @@ def download():
             "outtmpl": output_template,
             "cookiefile": "cookies.txt",
             "extractor_args": {
-                "youtube:tab": ["skip=authcheck"]
+                "youtubetab": ["skip=authcheck"]
             },
         }
 
