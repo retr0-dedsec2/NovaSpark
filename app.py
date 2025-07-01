@@ -129,15 +129,19 @@ def callback():
         flash("Échec de la connexion à Spotify.")
     return redirect(url_for("index"))
 
-
 @app.route("/playlist")
 def playlist():
+    docs = db.collection("musics").stream()
     files = [
-        f
-        for f in os.listdir(UPLOAD_FOLDER)
-        if f.split(".")[-1].lower() in ALLOWED_EXTENSIONS
+        {
+            "filename": doc.get("filename"),
+            "url": doc.get("url"),
+            "uploaded_by": doc.get("uploaded_by")
+        }
+        for doc in docs
     ]
-    return render_template("playlist.html", files=files, uploads=UPLOADS)
+    return render_template("playlist.html", files=files)
+
 
 
 @app.route("/assets/<filename>")
