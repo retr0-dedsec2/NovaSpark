@@ -255,12 +255,11 @@ def download():
             )
 
         output_template = os.path.join("assets", "%(title)s.%(ext)s")
-
         ydl_opts = {
             "outtmpl": output_template,
             "cookiefile": "cookies.txt",
             "extractor_args": {
-                "youtubetab": ["skip=authcheck"]
+                "youtube:tab": ["skip=authcheck"]
             },
         }
 
