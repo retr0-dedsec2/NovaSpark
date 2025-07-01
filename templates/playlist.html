@@ -3,6 +3,12 @@
 {% block title %}Playlist{% endblock %}
 
 {% block content %}
+<style>
+  body {
+    background: url("{{ background_image }}") no-repeat center center;
+    background-size: cover;
+  }
+</style>
 <h1>Bibliothèque des musiques</h1>
 
 {% if files %}
