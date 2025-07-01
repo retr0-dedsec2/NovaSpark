@@ -19,6 +19,10 @@ from firebase_admin import credentials, firestore
 cred = credentials.Certificate(
     "./novaspark7-8f86a-firebase-adminsdk-fbsvc-34532a70d7.json"
 )
+firebase_admin.initialize_app(cred, {
+    'storageBucket': 'https://novaspark7-8f86a-default-rtdb.europe-west1.firebasedatabase.app'
+})
+
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -32,21 +36,6 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # ---------- Gestion des utilisateurs JSON ----------
 USERS_FILE = "users.json"
-
-# Configuration de l'API Spotify
-SPOTIPY_CLIENT_ID = "e76c1b848bf849d99341e30d6bc4e62d"
-SPOTIPY_CLIENT_SECRET = "c3d76edb497347aabcf1776ae21fe002"
-SPOTIPY_REDIRECT_URI = "http://192.168.1.72:5000/callback"
-SCOPE = "user-library-read"
-# Initialisation de l'API Spotify
-sp = spotipy.Spotify(
-    auth_manager=SpotifyOAuth(
-        client_id=SPOTIPY_CLIENT_ID,
-        client_secret=SPOTIPY_CLIENT_SECRET,
-        redirect_uri=SPOTIPY_REDIRECT_URI,
-        scope=SCOPE,
-    )
-)
 
 # Charger les utilisateurs depuis le JSON
 if os.path.exists(USERS_FILE):
