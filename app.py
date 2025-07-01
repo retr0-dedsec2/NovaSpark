@@ -86,14 +86,17 @@ def upload():
         return redirect(url_for("upload"))
 
     return render_template("upload.html")
-
 @app.route("/playlist")
 def playlist():
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+
     files = [
         f for f in os.listdir(UPLOAD_FOLDER)
         if allowed_file(f)
     ]
     return render_template("playlist.html", files=files)
+
 
 @app.route("/assets/<filename>")
 def uploaded_file(filename):
