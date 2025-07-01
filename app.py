@@ -11,18 +11,6 @@ from flask import (
 import os
 import json
 from werkzeug.utils import secure_filename
-import firebase_admin
-from firebase_admin import credentials, db, storage
-
-# ------------------ Initialisation Firebase ------------------
-if not firebase_admin._apps:
-    cred = credentials.Certificate("./novaspark7-8f86a-firebase-adminsdk-fbsvc-f49453cb6e.json")
-    firebase_admin.initialize_app(cred, {
-        "storageBucket": "novaspark7-8f86a.appspot.com",
-        "databaseURL": "https://novaspark7-8f86a-default-rtdb.europe-west1.firebasedatabase.app/"
-    })
-
-bucket = storage.bucket()
 
 # ------------------ Flask App ------------------
 app = Flask(__name__)
@@ -59,7 +47,7 @@ def save_favorites():
     with open(FAVORITES_FILE, "w") as f:
         json.dump(favorites_db, f)
 
-# ------------------ Fichiers autorisés ------------------
+# ------------------ Vérifier fichiers ------------------
 def allowed_file(filename):
     return (
         "." in filename
@@ -82,27 +70,17 @@ def upload():
 
     if request.method == "POST":
         file = request.files.get("file")
-        if not file:
+        if not file or file.filename == "":
             flash("Aucun fichier sélectionné.")
             return redirect(request.url)
 
         if not allowed_file(file.filename):
-            flash("Extension non autorisée ou nom invalide.")
+            flash("Extension non autorisée.")
             return redirect(request.url)
 
         filename = secure_filename(file.filename)
-        blob = bucket.blob(filename)
-        blob.upload_from_file(file, content_type=file.content_type)
-        blob.make_public()
-        url = blob.public_url
-
-        # Enregistrer dans Realtime Database
-        ref = db.reference("/musics")
-        ref.push({
-            "filename": filename,
-            "uploaded_by": session["username"],
-            "url": url
-        })
+        save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        file.save(save_path)
 
         flash("Fichier uploadé avec succès.")
         return redirect(url_for("upload"))
@@ -111,17 +89,11 @@ def upload():
 
 @app.route("/playlist")
 def playlist():
-    ref = db.reference("/musics")
-    musics = ref.get() or {}
-    files = []
-    for key, value in musics.items():
-        files.append({
-            "filename": value.get("filename"),
-            "url": value.get("url"),
-            "uploaded_by": value.get("uploaded_by")
-        })
+    files = [
+        f for f in os.listdir(UPLOAD_FOLDER)
+        if allowed_file(f)
+    ]
     return render_template("playlist.html", files=files)
-
 
 @app.route("/assets/<filename>")
 def uploaded_file(filename):
@@ -187,20 +159,6 @@ def add_favorite(filename):
     else:
         flash(f"{filename} est déjà dans vos favoris.")
     return redirect(url_for("playlist"))
-
-@app.route("/search", methods=["GET", "POST"])
-def search():
-    query = ""
-    results = []
-    if request.method == "POST":
-        query = request.form.get("query", "").lower()
-        files = [
-            f
-            for f in os.listdir(UPLOAD_FOLDER)
-            if f.split(".")[-1].lower() in ALLOWED_EXTENSIONS
-        ]
-        results = [f for f in files if query in f.lower()]
-    return render_template("search.html", results=results, query=query)
 
 @app.route("/favorites")
 def show_favorites():
