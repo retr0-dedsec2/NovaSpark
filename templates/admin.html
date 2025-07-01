@@ -1,0 +1,28 @@
+{% extends "base.html" %} {% block title %}Admin{% endblock %} {% block content
+%}
+<h1>Administration</h1>
+<form method="post">
+  <label>Titre du site</label><br />
+  <input
+    type="text"
+    name="site_title"
+    value="{{ settings.site_title }}"
+  /><br /><br />
+
+  <label>Message d'accueil</label><br />
+  <input
+    type="text"
+    name="welcome_message"
+    value="{{ settings.welcome_message }}"
+  /><br /><br />
+
+  <label>URL ou chemin de l'image de fond</label><br />
+  <input
+    type="text"
+    name="background_image"
+    value="{{ settings.background_image }}"
+  /><br /><br />
+
+  <button type="submit">Enregistrer</button>
+</form>
+{% endblock %}
