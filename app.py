@@ -11,24 +11,20 @@ from flask import (
 import os
 import json
 from werkzeug.utils import secure_filename
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
 import firebase_admin
-from firebase_admin import credentials, firestore, storage
+from firebase_admin import credentials, db, storage
 
-# Initialisation Firebase (une seule fois)
+# ------------------ Initialisation Firebase ------------------
 if not firebase_admin._apps:
-    cred = credentials.Certificate(
-        "./novaspark7-8f86a-firebase-adminsdk-fbsvc-34532a70d7.json"
-    )
+    cred = credentials.Certificate("./novaspark7-8f86a-firebase-adminsdk-fbsvc-f49453cb6e.json")
     firebase_admin.initialize_app(cred, {
-        'storageBucket': 'novaspark7-8f86a.appspot.com'
+        "storageBucket": "novaspark7-8f86a.appspot.com",
+        "databaseURL": "https://novaspark7-8f86a-default-rtdb.europe-west1.firebasedatabase.app/"
     })
 
-db = firestore.client()
 bucket = storage.bucket()
 
-# Flask
+# ------------------ Flask App ------------------
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
@@ -36,7 +32,7 @@ UPLOAD_FOLDER = "assets"
 ALLOWED_EXTENSIONS = {"mp3", "mp4"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# ---------- Gestion utilisateurs JSON ----------
+# ------------------ Gestion utilisateurs ------------------
 USERS_FILE = "users.json"
 if os.path.exists(USERS_FILE):
     with open(USERS_FILE, "r") as f:
@@ -48,7 +44,7 @@ def save_users():
     with open(USERS_FILE, "w") as f:
         json.dump(USERS, f)
 
-# ---------- Favoris ----------
+# ------------------ Favoris ------------------
 FAVORITES_FILE = "favorites.json"
 if os.path.exists(FAVORITES_FILE):
     with open(FAVORITES_FILE, "r") as f:
@@ -63,7 +59,7 @@ def save_favorites():
     with open(FAVORITES_FILE, "w") as f:
         json.dump(favorites_db, f)
 
-# ---------- Vérifier fichiers ----------
+# ------------------ Fichiers autorisés ------------------
 def allowed_file(filename):
     return (
         "." in filename
@@ -71,7 +67,7 @@ def allowed_file(filename):
         and filename.count(".") == 1
     )
 
-# ---------- Routes ----------
+# ------------------ Routes ------------------
 @app.route("/")
 def index():
     user = session.get("username")
@@ -87,7 +83,7 @@ def upload():
     if request.method == "POST":
         file = request.files.get("file")
         if not file:
-            flash("Aucun fichier.")
+            flash("Aucun fichier sélectionné.")
             return redirect(request.url)
 
         if not allowed_file(file.filename):
@@ -100,8 +96,9 @@ def upload():
         blob.make_public()
         url = blob.public_url
 
-        # Enregistrer dans Firestore
-        db.collection("musics").add({
+        # Enregistrer dans Realtime Database
+        ref = db.reference("/musics")
+        ref.push({
             "filename": filename,
             "uploaded_by": session["username"],
             "url": url
@@ -114,30 +111,20 @@ def upload():
 
 @app.route("/playlist")
 def playlist():
-    docs = db.collection("musics").stream()
-    files = [{
-        "filename": doc.get("filename"),
-        "url": doc.get("url"),
-        "uploaded_by": doc.get("uploaded_by")
-    } for doc in docs]
+    ref = db.reference("/musics")
+    musics = ref.get() or {}
+    files = []
+    for key, value in musics.items():
+        files.append({
+            "filename": value.get("filename"),
+            "url": value.get("url"),
+            "uploaded_by": value.get("uploaded_by")
+        })
     return render_template("playlist.html", files=files)
 
 @app.route("/assets/<filename>")
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
-
-@app.route("/search", methods=["GET", "POST"])
-def search():
-    query = ""
-    results = []
-    if request.method == "POST":
-        query = request.form.get("query", "").lower()
-        files = [
-            f for f in os.listdir(UPLOAD_FOLDER)
-            if f.split(".")[-1].lower() in ALLOWED_EXTENSIONS
-        ]
-        results = [f for f in files if query in f.lower()]
-    return render_template("search.html", results=results, query=query)
 
 @app.route("/contact")
 def contact():
@@ -208,6 +195,6 @@ def show_favorites():
     favs = favorites_db.get(user, [])
     return render_template("favorites.html", favorites=favs)
 
-# ---------- Lancer ----------
+# ------------------ Lancer ------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
