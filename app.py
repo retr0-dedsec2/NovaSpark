@@ -90,26 +90,33 @@ def upload():
     if "username" not in session:
         flash("Vous devez être connecté.")
         return redirect(url_for("login"))
-    UPLOADS[filename] = session["username"]
-    with open(UPLOADS_FILE, "w") as f:
-        json.dump(UPLOADS, f)
+
     if request.method == "POST":
-        if "file" not in request.files:
-            flash("Aucun fichier sélectionné.")
+        file = request.files.get("file")
+        if not file:
+            flash("Aucun fichier.")
             return redirect(request.url)
-        file = request.files["file"]
-        if file.filename == "":
-            flash("Aucun fichier sélectionné.")
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            flash("Fichier uploadé avec succès.")
-            return redirect(url_for("upload"))
-        else:
-            flash("Nom invalide ou extension interdite.")
-            return redirect(request.url)
+
+        filename = secure_filename(file.filename)
+        blob = bucket.blob(filename)
+        blob.upload_from_file(file, content_type=file.content_type)
+        
+        # Rendre le fichier public
+        blob.make_public()
+        url = blob.public_url
+
+        # Enregistrer dans Firestore
+        db.collection("musics").add({
+            "filename": filename,
+            "uploaded_by": session["username"],
+            "url": url
+        })
+
+        flash("Fichier uploadé avec succès.")
+        return redirect(url_for("upload"))
+
     return render_template("upload.html")
+
 
 
 @app.route("/callback")
