@@ -122,6 +122,7 @@ def playlist():
         })
     return render_template("playlist.html", files=files)
 
+
 @app.route("/assets/<filename>")
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
