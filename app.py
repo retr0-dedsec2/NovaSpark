@@ -14,19 +14,21 @@ from werkzeug.utils import secure_filename
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, storage
 
-cred = credentials.Certificate(
-    "./novaspark7-8f86a-firebase-adminsdk-fbsvc-34532a70d7.json"
-)
-firebase_admin.initialize_app(cred, {
-    'storageBucket': 'https://novaspark7-8f86a-default-rtdb.europe-west1.firebasedatabase.app'
-})
+# Initialisation Firebase (une seule fois)
+if not firebase_admin._apps:
+    cred = credentials.Certificate(
+        "./novaspark7-8f86a-firebase-adminsdk-fbsvc-34532a70d7.json"
+    )
+    firebase_admin.initialize_app(cred, {
+        'storageBucket': 'novaspark7-8f86a.appspot.com'
+    })
 
-firebase_admin.initialize_app(cred)
 db = firestore.client()
+bucket = storage.bucket()
 
-
+# Flask
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
@@ -34,27 +36,20 @@ UPLOAD_FOLDER = "assets"
 ALLOWED_EXTENSIONS = {"mp3", "mp4"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# ---------- Gestion des utilisateurs JSON ----------
+# ---------- Gestion utilisateurs JSON ----------
 USERS_FILE = "users.json"
-
-# Charger les utilisateurs depuis le JSON
 if os.path.exists(USERS_FILE):
     with open(USERS_FILE, "r") as f:
         USERS = json.load(f)
 else:
     USERS = {}
 
-
-# Sauvegarder les utilisateurs dans le JSON
 def save_users():
     with open(USERS_FILE, "w") as f:
         json.dump(USERS, f)
 
-
-# ---------- Gestion des favoris ----------
-favorites_db = {}
+# ---------- Favoris ----------
 FAVORITES_FILE = "favorites.json"
-
 if os.path.exists(FAVORITES_FILE):
     with open(FAVORITES_FILE, "r") as f:
         try:
@@ -64,8 +59,11 @@ if os.path.exists(FAVORITES_FILE):
 else:
     favorites_db = {}
 
+def save_favorites():
+    with open(FAVORITES_FILE, "w") as f:
+        json.dump(favorites_db, f)
 
-# ---------- Fonctions utilitaires ----------
+# ---------- Vérifier fichiers ----------
 def allowed_file(filename):
     return (
         "." in filename
@@ -73,17 +71,12 @@ def allowed_file(filename):
         and filename.count(".") == 1
     )
 
-
 # ---------- Routes ----------
 @app.route("/")
 def index():
-    if "username" in session:
-        user = session["username"]
-        favs = favorites_db.get(user, [])
-    else:
-        favs = []
+    user = session.get("username")
+    favs = favorites_db.get(user, []) if user else []
     return render_template("index.html", favorites=favs)
-
 
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
@@ -97,11 +90,13 @@ def upload():
             flash("Aucun fichier.")
             return redirect(request.url)
 
+        if not allowed_file(file.filename):
+            flash("Extension non autorisée ou nom invalide.")
+            return redirect(request.url)
+
         filename = secure_filename(file.filename)
         blob = bucket.blob(filename)
         blob.upload_from_file(file, content_type=file.content_type)
-        
-        # Rendre le fichier public
         blob.make_public()
         url = blob.public_url
 
@@ -117,37 +112,19 @@ def upload():
 
     return render_template("upload.html")
 
-
-
-@app.route("/callback")
-def callback():
-    token_info = sp.auth_manager.get_access_token()
-    if token_info:
-        session["token_info"] = token_info
-        flash("Vous êtes maintenant connecté à Spotify.")
-    else:
-        flash("Échec de la connexion à Spotify.")
-    return redirect(url_for("index"))
-
 @app.route("/playlist")
 def playlist():
     docs = db.collection("musics").stream()
-    files = [
-        {
-            "filename": doc.get("filename"),
-            "url": doc.get("url"),
-            "uploaded_by": doc.get("uploaded_by")
-        }
-        for doc in docs
-    ]
+    files = [{
+        "filename": doc.get("filename"),
+        "url": doc.get("url"),
+        "uploaded_by": doc.get("uploaded_by")
+    } for doc in docs]
     return render_template("playlist.html", files=files)
-
-
 
 @app.route("/assets/<filename>")
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
-
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
@@ -156,27 +133,15 @@ def search():
     if request.method == "POST":
         query = request.form.get("query", "").lower()
         files = [
-            f
-            for f in os.listdir(UPLOAD_FOLDER)
+            f for f in os.listdir(UPLOAD_FOLDER)
             if f.split(".")[-1].lower() in ALLOWED_EXTENSIONS
         ]
         results = [f for f in files if query in f.lower()]
     return render_template("search.html", results=results, query=query)
 
-
-@app.route("/search_spotify", methods=["GET", "POST"])
-def search_spotify():
-    results = []
-    if request.method == "POST":
-        query = request.form.get("query")
-        results = sp.search(q=query, type="track", limit=10)
-    return render_template("search_spotify.html", results=results)
-
-
 @app.route("/contact")
 def contact():
     return render_template("contact.html")
-
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -191,7 +156,6 @@ def login():
             flash("Identifiants invalides.")
             return redirect(url_for("login"))
     return render_template("login.html")
-
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -211,11 +175,9 @@ def register():
         return redirect(url_for("index"))
     return render_template("register.html")
 
-
 @app.route("/visualizer")
 def visualizer():
     return render_template("visualizer.html")
-
 
 @app.route("/logout")
 def logout():
@@ -223,23 +185,20 @@ def logout():
     flash("Déconnecté avec succès.")
     return redirect(url_for("index"))
 
-
 @app.route("/add_favorite/<filename>")
 def add_favorite(filename):
-    print("DEBUG SESSION:", session)
     if "username" not in session:
         flash("Vous devez être connecté.")
         return redirect(url_for("login"))
     user = session["username"]
-    print("DEBUG USER:", user)
     favorites_db.setdefault(user, [])
     if filename not in favorites_db[user]:
         favorites_db[user].append(filename)
+        save_favorites()
         flash(f"{filename} ajouté aux favoris.")
     else:
         flash(f"{filename} est déjà dans vos favoris.")
     return redirect(url_for("playlist"))
-
 
 @app.route("/favorites")
 def show_favorites():
@@ -249,17 +208,6 @@ def show_favorites():
     favs = favorites_db.get(user, [])
     return render_template("favorites.html", favorites=favs)
 
-
-UPLOADS_FILE = "uploads.json"
-
-# Charger l'historique des uploads
-if os.path.exists(UPLOADS_FILE):
-    with open(UPLOADS_FILE, "r") as f:
-        UPLOADS = json.load(f)
-else:
-    UPLOADS = {}
-
-
-# ---------- Lancer l'application ----------
+# ---------- Lancer ----------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
