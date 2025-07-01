@@ -249,17 +249,16 @@ def download():
 
         if not url:
             flash("Aucune URL fournie.")
-            return render_template(
-                "download_video.html",
-                background_image="/static/bg_download.jpg"
-            )
+            return render_template("download_video.html")
 
         output_template = os.path.join("assets", "%(title)s.%(ext)s")
+
         ydl_opts = {
             "outtmpl": output_template,
+            "cookiefile": "cookies.txt",
             "noplaylist": True,
         }
-        
+
         if fmt in ["mp3", "wav"]:
             ydl_opts.update({
                 "format": "bestaudio/best",
@@ -281,18 +280,11 @@ def download():
             flash(f"Téléchargement terminé : {url} en {fmt}")
         except Exception as e:
             flash(f"Erreur pendant le téléchargement : {str(e)}")
-            return render_template(
-                "download_video.html",
-                background_image="/static/bg_download.jpg"
-            )
+            return render_template("download_video.html")
 
         return redirect(url_for("playlist"))
 
-    return render_template(
-        "download_video.html",
-        background_image="/static/bg_download.jpg"
-    )
-
+    return render_template("download_video.html")
 
 
 @app.route("/search_spotify", methods=["GET", "POST"])
