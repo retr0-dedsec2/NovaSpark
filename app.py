@@ -257,6 +257,7 @@ def download():
             "outtmpl": output_template,
             "cookiefile": "cookies.txt",
             "noplaylist": True,
+            "cookiesfrombrowser": ("chrome", "firefox"),
         }
 
         if fmt in ["mp3", "wav"]:
