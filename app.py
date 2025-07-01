@@ -15,6 +15,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import firebase_admin
 from firebase_admin import credentials, firestore
+import yt_dlp
 
 cred = credentials.Certificate(
     "C:/Users/gabin/Downloads/novaspark7-8f86a-firebase-adminsdk-fbsvc-f49453cb6e.json"
@@ -206,20 +207,78 @@ def uploaded_file(filename):
 def search():
     query = ""
     results = []
+    users = []
     if request.method == "POST":
         query = request.form.get("query", "").lower()
+        # Recherche fichiers
         files = [
             f
             for f in os.listdir(UPLOAD_FOLDER)
             if f.split(".")[-1].lower() in ALLOWED_EXTENSIONS
         ]
         results = [f for f in files if query in f.lower()]
+        # Recherche utilisateurs
+        users = [u for u in USERS if query in u.lower()]
     return render_template(
         "search.html",
         results=results,
+        users=users,
         query=query,
-        background_image="/static/background1.png",
+        background_image="/static/bg_search.jpg",
     )
+
+
+@app.route("/profile/<username>")
+def profile(username):
+    user_data = USERS.get(username)
+    if not user_data:
+        flash("Utilisateur introuvable.")
+        return redirect(url_for("index"))
+    return render_template(
+        "profile.html",
+        username=username,
+        user=user_data,
+        background_image="/static/bg_profile.jpg",
+    )
+
+
+@app.route("/download", methods=["GET", "POST"])
+def download_video():
+    if request.method == "POST":
+        keyword = request.form.get("keyword")
+        fmt = request.form.get("format")
+
+        # Crée un nom de fichier de sortie
+        output_template = os.path.join(UPLOAD_FOLDER, "%(title)s.%(ext)s")
+
+        # Options selon le format choisi
+        if fmt in ["mp3", "mp3hd", "wav"]:
+            ydl_opts = {
+                "format": "bestaudio/best",
+                "outtmpl": output_template,
+                "postprocessors": [
+                    {
+                        "key": "FFmpegExtractAudio",
+                        "preferredcodec": "mp3" if fmt.startswith("mp3") else fmt,
+                        "preferredquality": "192" if fmt == "mp3" else "1411",
+                    }
+                ],
+            }
+        else:
+            # Pour les formats vidéo
+            ydl_opts = {
+                "format": "bestvideo+bestaudio/best",
+                "outtmpl": output_template,
+            }
+
+        # Téléchargement
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([keyword])
+
+        flash(f"Téléchargement terminé pour : {keyword} en {fmt}")
+        return redirect(url_for("playlist"))
+
+    return render_template("search.html", background_image="/static/bg_youtube.jpg")
 
 
 @app.route("/search_spotify", methods=["GET", "POST"])
