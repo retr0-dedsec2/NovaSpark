@@ -17,7 +17,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 cred = credentials.Certificate(
-    "./novaspark7-8f86a-firebase-adminsdk-fbsvc-34532a70d7.json"
+    "C:/Users/gabin/Downloads/novaspark7-8f86a-firebase-adminsdk-fbsvc-34532a70d7.json"
 )
 firebase_admin.initialize_app(cred)
 db = firestore.client()
@@ -64,6 +64,16 @@ def save_users():
 
 # ---------- Gestion des favoris ----------
 favorites_db = {}
+FAVORITES_FILE = "favorites.json"
+
+if os.path.exists(FAVORITES_FILE):
+    with open(FAVORITES_FILE, "r") as f:
+        try:
+            favorites_db = json.load(f)
+        except json.JSONDecodeError:
+            favorites_db = {}
+else:
+    favorites_db = {}
 
 
 # ---------- Fonctions utilitaires ----------
@@ -91,7 +101,9 @@ def upload():
     if "username" not in session:
         flash("Vous devez être connecté.")
         return redirect(url_for("login"))
-
+    UPLOADS[filename] = session["username"]
+    with open(UPLOADS_FILE, "w") as f:
+        json.dump(UPLOADS, f)
     if request.method == "POST":
         if "file" not in request.files:
             flash("Aucun fichier sélectionné.")
@@ -103,19 +115,12 @@ def upload():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-
-            # Enregistrer l'uploader
-            UPLOADS[filename] = session["username"]
-            with open(UPLOADS_FILE, "w") as f:
-                json.dump(UPLOADS, f)
-
             flash("Fichier uploadé avec succès.")
             return redirect(url_for("upload"))
         else:
             flash("Nom invalide ou extension interdite.")
             return redirect(request.url)
     return render_template("upload.html")
-
 
 
 @app.route("/callback")
@@ -218,27 +223,22 @@ def logout():
     flash("Déconnecté avec succès.")
     return redirect(url_for("index"))
 
+
 @app.route("/add_favorite/<filename>")
 def add_favorite(filename):
+    print("DEBUG SESSION:", session)
     if "username" not in session:
         flash("Vous devez être connecté.")
         return redirect(url_for("login"))
-
     user = session["username"]
+    print("DEBUG USER:", user)
     favorites_db.setdefault(user, [])
-
     if filename not in favorites_db[user]:
         favorites_db[user].append(filename)
         flash(f"{filename} ajouté aux favoris.")
     else:
         flash(f"{filename} est déjà dans vos favoris.")
-
-    # Sauvegarde dans le fichier
-    with open(FAVORITES_FILE, "w") as f:
-        json.dump(favorites_db, f)
-
     return redirect(url_for("playlist"))
-
 
 
 @app.route("/favorites")
