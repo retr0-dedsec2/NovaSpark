@@ -243,39 +243,56 @@ def profile(username):
 
 @app.route("/download", methods=["GET", "POST"])
 def download():
-    url = request.form.get("keyword")
-    fmt = request.form.get("format")
+    if request.method == "POST":
+        url = request.form.get("keyword")
+        fmt = request.form.get("format")
 
-    if not url:
-        flash("Aucune URL fournie.")
-        return redirect(url_for("search"))
+        if not url:
+            flash("Aucune URL fournie.")
+            return render_template(
+                "download_video.html",
+                background_image="/static/bg_download.jpg"
+            )
 
-    output_template = os.path.join("assets", "%(title)s.%(ext)s")
+        output_template = os.path.join("assets", "%(title)s.%(ext)s")
 
-    if fmt in ["mp3", "wav"]:
-        ydl_opts = {
-            "format": "bestaudio/best",
-            "outtmpl": output_template,
-            "postprocessors": [{
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": fmt,
-                "preferredquality": "192",
-            }],
-        }
-    else:
-        ydl_opts = {
-            "format": "bestvideo+bestaudio/best",
-            "outtmpl": output_template,
-        }
+        # Configuration yt-dlp
+        if fmt in ["mp3", "wav"]:
+            ydl_opts = {
+                "format": "bestaudio/best",
+                "outtmpl": output_template,
+                "postprocessors": [{
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": fmt,
+                    "preferredquality": "192",
+                }],
+            }
+        else:
+            ydl_opts = {
+                "format": "bestvideo+bestaudio/best",
+                "outtmpl": output_template,
+            }
 
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
-        flash(f"Téléchargement terminé : {url}")
-    except Exception as e:
-        flash(f"Erreur : {str(e)}")
+        # Télécharger avec yt-dlp
+        try:
+            import yt_dlp
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([url])
+            flash(f"Téléchargement terminé : {url} en {fmt}")
+        except Exception as e:
+            flash(f"Erreur pendant le téléchargement : {str(e)}")
+            return render_template(
+                "download_video.html",
+                background_image="/static/bg_download.jpg"
+            )
 
-    return redirect(url_for("playlist"))
+        return redirect(url_for("playlist"))
+
+    # Si GET, afficher le formulaire
+    return render_template(
+        "download_video.html",
+        background_image="/static/bg_download.jpg"
+    )
 
 
 @app.route("/search_spotify", methods=["GET", "POST"])
