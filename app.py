@@ -264,7 +264,6 @@ def download():
             },
         }
 
-
         if fmt in ["mp3", "wav"]:
             ydl_opts.update({
                 "format": "bestaudio/best",
@@ -297,6 +296,7 @@ def download():
         "download_video.html",
         background_image="/static/bg_download.jpg"
     )
+
 
 
 @app.route("/search_spotify", methods=["GET", "POST"])
