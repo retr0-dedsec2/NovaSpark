@@ -17,7 +17,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 cred = credentials.Certificate(
-    "C:/Users/gabin/Downloads/novaspark7-8f86a-firebase-adminsdk-fbsvc-34532a70d7.json"
+    "./novaspark7-8f86a-firebase-adminsdk-fbsvc-34532a70d7.json"
 )
 firebase_admin.initialize_app(cred)
 db = firestore.client()
