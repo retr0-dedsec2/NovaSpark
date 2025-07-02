@@ -15,7 +15,15 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import firebase_admin
 from firebase_admin import credentials, firestore
-import yt_dlp
+from flask import Flask, render_template, request, redirect, url_for, session
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
+from datetime import datetime
+import os
+
+app = Flask(__name__)
+app.secret_key = os.urandom(24)  # Pour les sessions & CSRF
+
 
 cred = credentials.Certificate(
     "./novaspark7-8f86a-firebase-adminsdk-fbsvc-f49453cb6e.json"
@@ -24,7 +32,6 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 
-app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
 UPLOAD_FOLDER = "assets"
@@ -240,6 +247,7 @@ def profile(username):
         user=user_data,
         background_image="/static/bg_profile.jpg",
     )
+
 
 @app.route("/search_spotify", methods=["GET", "POST"])
 def search_spotify():
