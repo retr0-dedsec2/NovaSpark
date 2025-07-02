@@ -1,5 +1,8 @@
-{% extends "base.html" %} {% block title %}Playlist{% endblock %} {% block
-content %}
+{% extends "base.html" %}
+
+{% block title %}Playlist{% endblock %}
+
+{% block content %}
 <style>
   body {
     background: url("{{ background_image }}") no-repeat center center;
@@ -25,4 +28,6 @@ content %}
 </div>
 {% else %}
 <p>Aucune musique disponible.</p>
-{% endif %} {% endblock %}
+{% endif %}
+
+{% endblock %}
