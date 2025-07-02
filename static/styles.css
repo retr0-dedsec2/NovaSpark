@@ -1,60 +1,43 @@
+/* Reset */
 html, body {
-  height: 100%;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  font-family: 'Courier New', monospace;
-  background: linear-gradient(to bottom, #000010, #000020);
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #121212;
   color: #eee;
 }
 
-main {
-  flex: 1;
-  padding: 20px;
-  text-align: center;
-  /* Ajout si footer fixed */
-  padding-bottom: 60px; /* hauteur approximative du footer */
-  background: #000000ab;
-}
-
+/* Navigation */
 .nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #0c0c0c;
-  padding: 20px 40px;
+  background: #1f1f1f;
+  padding: 10px 20px;
   border-bottom: 2px solid #00ffcc;
 }
 
-.logo {
-  height: 50px;
-  border-radius: 41px;
+.nav .logo {
+  height: 40px;
 }
 
-
-.open-btn {
-  font-size: 1.5em;
-  cursor: pointer;
+.nav .user-info {
+  margin-right: 10px;
 }
 
-.user-info {
-  margin-left: auto;
-}
-
+/* Menu latéral */
 .side-menu {
   height: 100%;
   width: 0;
   position: fixed;
   top: 0;
   right: 0;
-  background: #111;
+  background: #222;
   overflow-x: hidden;
   transition: 0.3s;
   padding-top: 60px;
-}
-.side-menu {
-  right: 0;
+  z-index: 1000;
 }
 
 .side-menu a {
@@ -62,6 +45,7 @@ main {
   padding: 10px 30px;
   color: #eee;
   text-decoration: none;
+  font-size: 1.1em;
 }
 
 .side-menu a:hover {
@@ -74,57 +58,115 @@ main {
   top: 10px;
   left: 20px;
   font-size: 2em;
+  cursor: pointer;
 }
 
-footer {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
+/* Contenu principal */
+main {
   padding: 20px;
-  background: #0c0c0c;
-  text-align: center;
-  border-top: 2px solid #00ffcc;
-  font-size: 0.9em;
-  color: #ccc;
+  max-width: 1000px;
+  margin: auto;
 }
 
-footer p {
-  margin: 10px;
-  text-align: center;
+/* Messages flash */
+.flashes {
+  list-style: none;
+  padding: 0;
 }
 
+.flashes li {
+  background: #333;
+  color: #fff;
+  margin: 5px 0;
+  padding: 10px;
+  border-left: 4px solid #00ffcc;
+}
+
+/* Formulaires */
+form input[type="text"],
+form input[type="password"],
+form input[type="search"],
+form textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  background: #222;
+  border: 1px solid #555;
+  color: #eee;
+  border-radius: 4px;
+}
+
+form button,
+form input[type="submit"] {
+  background: #00ffcc;
+  border: none;
+  color: #111;
+  padding: 10px 20px;
+  margin-top: 5px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+form button:hover,
+form input[type="submit"]:hover {
+  background: #00e6b8;
+}
+
+/* Playlist */
 .playlist {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: 20px;
+  justify-content: center;
 }
 
 .playlist-item {
-  background: #111;
+  background: #1e1e1e;
   padding: 15px;
   border-radius: 8px;
-  box-shadow:
-  0em 0 2em #00ffcc;
+  width: 200px;
+  text-align: center;
 }
 
-.media-icon {
-  font-size: 1.5em;
+.playlist-item audio,
+.playlist-item video {
+  width: 100%;
+  margin-top: 8px;
 }
 
-form input[type="text"],
-form input[type="password"] {
-  background: #0b0b0b;
-  border: none;
-  color: white;
+/* Messages */
+.conversation {
+  margin-top: 20px;
+}
+
+.message {
+  background: #1f1f1f;
   padding: 10px;
-  border-radius: 10px;
-}
-main ul {
-  list-style: none;
+  border-radius: 6px;
+  margin-bottom: 10px;
 }
 
-.playlist-item a {
-  text-decoration: none;
-  color: white;
+.message strong {
+  color: #00ffcc;
+}
+
+/* Footer */
+footer {
+  padding: 15px;
+  background: #1f1f1f;
+  text-align: center;
+  border-top: 2px solid #00ffcc;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  font-size: 0.9em;
+  color: #aaa;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .playlist {
+    flex-direction: column;
+    align-items: center;
+  }
 }
