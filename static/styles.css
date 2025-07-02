@@ -125,7 +125,7 @@ form input[type="submit"]:hover {
   background: #1e1e1e;
   padding: 15px;
   border-radius: 8px;
-  width: 200px;
+  width: auto;
   text-align: center;
 }
 
