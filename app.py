@@ -37,7 +37,6 @@ app.secret_key = "supersecretkey"
 UPLOAD_FOLDER = "assets"
 ALLOWED_EXTENSIONS = {"mp3", "mp4"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-file.save(save_path)
 
 # ---------- Gestion des utilisateurs JSON ----------
 USERS_FILE = "users.json"
