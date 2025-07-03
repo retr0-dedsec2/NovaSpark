@@ -149,31 +149,25 @@ def upload():
         flash("Vous devez être connecté.")
         return redirect(url_for("login"))
 
-    
     if request.method == "POST":
-    file = request.files.get("file")
-    if not file or file.filename == "":
-        flash("Aucun fichier sélectionné.")
-        return redirect(request.url)
+        file = request.files.get("file")
+        if not file or file.filename == "":
+            flash("Aucun fichier sélectionné.")
+            return redirect(request.url)
 
-    if not allowed_file(file.filename):
-        flash("Extension non autorisée.")
-        return redirect(request.url)
+        if not allowed_file(file.filename):
+            flash("Extension non autorisée.")
+            return redirect(request.url)
 
-    # Ici on définit d'abord le nom
-    filename = secure_filename(file.filename)
+        filename = secure_filename(file.filename)
+        save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        file.save(save_path)
 
-    # Puis on calcule le chemin
-    save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-
-    # Ensuite on sauvegarde
-    file.save(save_path)
-
-    flash("Fichier uploadé avec succès.")
-    return redirect(url_for("upload"))
-
+        flash("Fichier uploadé avec succès.")
+        return redirect(url_for("upload"))
 
     return render_template("upload.html")
+
 
 
 
