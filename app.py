@@ -159,25 +159,17 @@ def upload():
             flash("Extension non autorisée.")
             return redirect(request.url)
 
+        # Ici on définit filename AVANT
         filename = secure_filename(file.filename)
-
-        # Ici tu sauvegardes localement
         save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+
         file.save(save_path)
-
-        # Enregistre l'uploader
-        UPLOADS[filename] = session["username"]
-
-        # (optionnel) Sauvegarder UPLOADS dans un JSON si tu veux
-        with open("uploads.json", "w") as f:
-            json.dump(UPLOADS, f)
 
         flash("Fichier uploadé avec succès.")
         return redirect(url_for("upload"))
 
-    return render_template(
-        "upload.html", settings=SETTINGS, background_image="/static/background4.png"
-    )
+    return render_template("upload.html")
+
 
 
 @app.route("/callback")
