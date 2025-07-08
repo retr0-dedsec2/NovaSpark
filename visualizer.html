@@ -1,160 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NovaSpark - Visualiseur Audio</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='styles.css') }}"
-    />
-    <style>
-      main {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-        padding: 20px;
-      }
-      canvas {
-        width: 100%;
-        max-width: 1000px;
-        height: 400px;
-        display: block;
-        background: #000;
-        border: 2px solid #00ffcc;
-        border-radius: 8px;
-      }
-      input[type="file"] {
-        background: #0b0b0b;
-        border: none;
-        color: white;
-        padding: 10px;
-        border-radius: 10px;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Menu slide -->
-    <div id="sideMenu" class="side-menu">
-      <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()"
-        >&times;</a
-      >
-      <a href="{{ url_for('index') }}">Home</a>
-      <a href="{{ url_for('upload') }}">Upload</a>
-      <a href="{{ url_for('playlist') }}">Playlist</a>
-      <a href="{{ url_for('search') }}">Search</a>
-      <a href="{{ url_for('contact') }}">Contact</a>
-      <a href="{{ url_for('login') }}">Login</a>
-      {% if session.get('username') %}
-      <a href="{{ url_for('logout') }}">Logout</a>
-      {% endif %}
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NovaSpark - Visualiseur</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+    }
+    canvas {
+      width: 100%;
+      max-width: 1000px;
+      height: 400px;
+      background: #000;
+      border: 2px solid #0ff;
+    }
+  </style>
+</head>
+<body>
+  <div id="sideMenu" class="side-menu">
+    <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+    <a href="/index.html">Home</a>
+    <a href="/upload.html">Upload</a>
+    <a href="/playlist.html">Playlist</a>
+    <a href="/search.html">Search</a>
+    <a href="/contact.html">Contact</a>
+  </div>
+  <header class="nav">
+    <img src="/static/logo.png" class="logo" alt="Logo"/>
+    <div style="display:flex;align-items:center;gap:20px">
+      <span class="open-btn" onclick="openMenu()">☰ Menu</span>
     </div>
+  </header>
 
-    <!-- Header -->
-    <header class="nav">
-      <img
-        src="{{ url_for('static', filename='logo.png') }}"
-        class="logo"
-        alt="Logo"
-      />
-      <div style="display: flex; align-items: center; gap: 20px">
-        {% if session.get('username') %}
-        <p class="user-info">Connecté : {{ session['username'] }}</p>
-        {% endif %}
-        <span class="open-btn" onclick="openMenu()">☰ Menu</span>
-      </div>
-    </header>
+  <main>
+    <h1>Visualiseur Audio</h1>
+    <input type="file" id="audioInput" accept="audio/*"/>
+    <canvas id="canvas" width="1000" height="400"></canvas>
+  </main>
 
-    <!-- Contenu principal -->
-    <main>
-      <h1>Visualiseur Audio</h1>
-      <p>Sélectionnez un fichier audio à visualiser :</p>
-      <input type="file" accept="audio/*" id="audioInput" />
-      <canvas id="canvas" width="1000" height="400"></canvas>
-    </main>
+  <footer>
+    <p>© Contributor developer Gabin Gagno</p>
+  </footer>
 
-    <!-- Footer -->
-    <footer>
-      <p>© Contributor developer Gabin Gagno</p>
-      <p>© Director general Lenzo Cavalier</p>
-    </footer>
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    let audioContext;
+    let analyser;
+    let dataArray;
 
-    <script>
-      const canvas = document.getElementById("canvas");
-      const canvasContext = canvas.getContext("2d");
-      let audioContext;
-      let analyser;
-      let dataArray;
-      let sourceNode;
+    document.getElementById("audioInput").addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const buffer = e.target.result;
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const audioBuffer = await audioContext.decodeAudioData(buffer);
 
-      document
-        .getElementById("audioInput")
-        .addEventListener("change", (event) => {
-          const file = event.target.files[0];
-          const reader = new FileReader();
-          reader.addEventListener("load", async (event) => {
-            const arrayBuffer = event.target.result;
+        const source = audioContext.createBufferSource();
+        source.buffer = audioBuffer;
 
-            audioContext = new (window.AudioContext ||
-              window.webkitAudioContext)();
-            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-            sourceNode = audioContext.createBufferSource();
-            sourceNode.buffer = audioBuffer;
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        source.start();
 
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 256;
-            const bufferLength = analyser.frequencyBinCount;
-            dataArray = new Uint8Array(bufferLength);
+        draw();
+      };
+      reader.readAsArrayBuffer(file);
+    });
 
-            sourceNode.connect(analyser);
-            analyser.connect(audioContext.destination);
-
-            sourceNode.start();
-
-            draw();
-          });
-          reader.readAsArrayBuffer(file);
-        });
-
-      function draw() {
-        requestAnimationFrame(draw);
-
-        analyser.getByteFrequencyData(dataArray);
-
-        canvasContext.fillStyle = "#000";
-        canvasContext.fillRect(0, 0, canvas.width, canvas.height);
-
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const barWidth = (canvas.width / dataArray.length) * 1.2;
-
-        for (let i = 0; i < dataArray.length; i++) {
-          const barHeight = dataArray[i];
-          const color = "rgb(" + (barHeight + 100) + ",50,200)";
-          canvasContext.fillStyle = color;
-
-          const offset = i * (barWidth + 1);
-
-          // Vers la droite
-          canvasContext.fillRect(
-            centerX + offset,
-            centerY - barHeight / 2,
-            barWidth,
-            barHeight
-          );
-
-          // Vers la gauche
-          canvasContext.fillRect(
-            centerX - offset - barWidth,
-            centerY - barHeight / 2,
-            barWidth,
-            barHeight
-          );
-        }
+    function draw(){
+      requestAnimationFrame(draw);
+      analyser.getByteFrequencyData(dataArray);
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      const barWidth = canvas.width / dataArray.length;
+      for(let i=0;i<dataArray.length;i++){
+        const barHeight = dataArray[i];
+        ctx.fillStyle = "rgb("+(barHeight+100)+",50,200)";
+        ctx.fillRect(i*barWidth,canvas.height-barHeight,barWidth,barHeight);
       }
-    </script>
-  </body>
+    }
+  </script>
+</body>
 </html>
