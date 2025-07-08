@@ -1,8 +1,68 @@
-{% extends "base.html" %} {% block title %}Upload{% endblock %} {% block content
-%}
-<h1>Uploader une musique</h1>
-<form method="post" enctype="multipart/form-data">
-  <input type="file" name="file" accept=".mp3,.mp4" required />
-  <button type="submit">Uploader</button>
-</form>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NovaSpark - Upload</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script defer src="/static/script.js"></script>
+</head>
+<body>
+  <div id="sideMenu" class="side-menu">
+    <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+    <a href="/index.html">Home</a>
+    <a href="/upload.html">Upload</a>
+    <a href="/playlist.html">Playlist</a>
+    <a href="/search.html">Search</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/register.html">Register</a>
+    <a href="/login.html">Login</a>
+    <a href="#" id="logoutLink" style="display:none;">Logout</a>
+  </div>
+  <header class="nav">
+    <img src="/static/logo.png" class="logo" alt="Logo"/>
+    <div style="display:flex;align-items:center;gap:20px">
+      <p class="user-info" id="userInfo"></p>
+      <span class="open-btn" onclick="openMenu()">☰ Menu</span>
+    </div>
+  </header>
+
+  <main>
+    <h1>Uploader une musique</h1>
+    <form id="uploadForm">
+      <input type="file" id="fileInput" accept=".mp3,.mp4" required />
+      <button type="submit">Uploader</button>
+    </form>
+    <p id="uploadStatus"></p>
+  </main>
+
+  <footer>
+    <p>© Contributor developer Gabin Gagno</p>
+  </footer>
+
+  <script>
+    const username = localStorage.getItem("username");
+    if(username) {
+      document.getElementById("userInfo").textContent = "Connecté : " + username;
+      document.getElementById("logoutLink").style.display = "block";
+    }
+
+    document.getElementById("logoutLink").addEventListener("click", () => {
+      localStorage.removeItem("username");
+      location.href = "/index.html";
+    });
+
+    document.getElementById("uploadForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById("fileInput");
+      const file = fileInput.files[0];
+      if(file) {
+        let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+        favs.push(file.name);
+        localStorage.setItem("favorites", JSON.stringify(favs));
+        document.getElementById("uploadStatus").textContent = "Fichier ajouté à vos favoris : " + file.name;
+      }
+    });
+  </script>
+</body>
+</html>
