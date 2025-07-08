@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
+    <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+    <title>NovaSpark - Recherche Spotify</title>
+  </head>
+  <body>
+    <!-- Menu slide -->
+    <div id="sideMenu" class="side-menu">
+      <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()"
+        >&times;</a
+      >
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="{{ url_for('upload') }}">Upload</a>
+      <a href="{{ url_for('playlist') }}">Playlist</a>
+      <a href="{{ url_for('search') }}">Search</a>
+      <a href="{{ url_for('contact') }}">Contact</a>
+      <a href="{{ url_for('register') }}">Register</a>
+      <a href="{{ url_for('login') }}">Login</a>
+      {% if session.get('username') %}
+      <a href="{{ url_for('logout') }}">Logout</a>
+      {% endif %}
+    </div>
+
+    <!-- Barre de navigation -->
+    <header class="nav">
+      <img
+        src="{{ url_for('static', filename='logo.png') }}"
+        class="logo"
+        alt="Logo"
+      />
+      <div style="display: flex; align-items: center; gap: 20px">
+        {% if session.get('username') %}
+        <p class="user-info">Connecté : {{ session['username'] }}</p>
+        {% endif %}
+        <span class="open-btn" onclick="openMenu()">☰ Menu</span>
+      </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main>
+      {% with messages = get_flashed_messages() %} {% if messages %}
+      <ul class="flashes">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% endwith %}
+
+      <h1>Recherche de Musique sur Spotify</h1>
+      <form method="POST">
+        <input
+          type="text"
+          name="query"
+          placeholder="Entrez le nom de l'artiste ou de la chanson"
+          required
+        />
+        <button type="submit">Rechercher</button>
+      </form>
+
+      <ul>
+        {% if results %} {% for track in results['tracks']['items'] %}
+        <li>
+          <a href="{{ track['external_urls']['spotify'] }}" target="_blank"
+            >{{ track['name'] }}</a
+          >
+          - {{ track['artists'][0]['name'] }}
+        </li>
+        {% endfor %} {% else %}
+        <li>Aucun résultat trouvé.</li>
+        {% endif %}
+      </ul>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <p>© Contributor developer Gabin Gagno</p>
+      <p>© Director general Lenzo Cavalier</p>
+    </footer>
+  </body>
+</html>

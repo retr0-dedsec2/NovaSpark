@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NovaSpark - Favoris</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+  </head>
+  <body>
+    <!-- Menu slide -->
+    <div id="sideMenu" class="side-menu">
+      <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()"
+        >&times;</a
+      >
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="{{ url_for('upload') }}">Upload</a>
+      <a href="{{ url_for('playlist') }}">Playlist</a>
+      <a href="{{ url_for('search') }}">Search</a>
+      <a href="{{ url_for('contact') }}">Contact</a>
+      <a href="{{ url_for('login') }}">Login</a>
+      {% if session.get('username') %}
+      <a href="{{ url_for('logout') }}">Logout</a>
+      {% endif %}
+    </div>
+
+    <!-- Header -->
+    <header class="nav">
+      <img
+        src="{{ url_for('static', filename='logo.png') }}"
+        class="logo"
+        alt="Logo"
+      />
+      <div style="display: flex; align-items: center; gap: 20px">
+        {% if session.get('username') %}
+        <p class="user-info">Connecté : {{ session['username'] }}</p>
+        {% endif %}
+        <span class="open-btn" onclick="openMenu()">☰ Menu</span>
+      </div>
+    </header>
+
+    <main>
+      <h1>Vos Favoris</h1>
+      {% if favorites %}
+      <div class="playlist">
+        {% for file in favorites %}
+        <div class="playlist-item">
+          {% set ext = file.rsplit('.', 1)[-1].lower() %} {% if ext == 'mp4' %}
+          <span class="media-icon">🎬</span>
+          <video controls width="200">
+            <source
+              src="{{ url_for('uploaded_file', filename=file) }}"
+              type="video/mp4"
+            />
+          </video>
+          {% else %}
+          <span class="media-icon">🎵</span>
+          <audio controls>
+            <source
+              src="{{ url_for('uploaded_file', filename=file) }}"
+              type="audio/mpeg"
+            />
+          </audio>
+          {% endif %}
+          <h3>{{ file }}</h3>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p>Aucun favori enregistré.</p>
+      {% endif %}
+    </main>
+
+    <footer>
+      <p>© Contributor developer Gabin Gagno</p>
+      <p>© Director general Lenzo Cavalier</p>
+    </footer>
+  </body>
+</html>

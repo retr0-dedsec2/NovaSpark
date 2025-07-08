@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Profil de {{ username }}{% endblock %}
+
+{% block content %}
+<h1>Profil de {{ username }}</h1>
+
+{% if user %}
+  <p><strong>Nom d'utilisateur :</strong> {{ username }}</p>
+  <p><strong>Détails :</strong></p>
+  <ul>
+    {% for key, value in user.items() %}
+      <li><strong>{{ key }}:</strong> {{ value }}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Ce profil n'existe pas.</p>
+{% endif %}
+
+{% endblock %}

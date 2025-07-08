@@ -1,0 +1,35 @@
+{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
+%}
+<style>
+  body {
+    background: url("{{ background_image }}") no-repeat center center;
+    background-size: cover;
+  }
+</style>
+<h1>Bienvenue sur NovaSpark</h1>
+<p>La plateforme musicale des hackers.</p>
+<h2>Vos musiques en favoris</h2>
+<!--<div id="favoritesContainer" class="playlist"></div>-->
+{% if session.get("username") %}
+<h2>Vos favoris récents</h2>
+{% if favorites %}
+<div class="playlist">
+  {% for file in favorites %}
+  <div class="playlist-item">
+    <span class="media-icon">
+      {{ '🎬' if file.endswith('.mp4') else '🎵' }}
+    </span>
+    <h3>{{ file }}</h3>
+    {% if file.endswith('.mp4') %}
+    <video controls width="200">
+      <source src="{{ url_for('uploaded_file', filename=file) }}" />
+    </video>
+    {% else %}
+    <audio controls src="{{ url_for('uploaded_file', filename=file) }}"></audio>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p>Aucun favori enregistré.</p>
+{% endif %} {% endif %} {% endblock %}

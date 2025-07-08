@@ -1,0 +1,173 @@
+/* Reset */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #121212;
+  color: #eee;
+}
+
+/* Navigation */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1f1f1f;
+  padding: 10px 20px;
+  border-bottom: 2px solid #00ffcc;
+}
+
+.nav .logo {
+  height: 40px;
+}
+
+.nav .user-info {
+  margin-right: 10px;
+}
+
+/* Menu latéral */
+.side-menu {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  top: 0;
+  right: 0;
+  background: #222;
+  overflow-x: hidden;
+  transition: 0.3s;
+  padding-top: 60px;
+  z-index: 1000;
+}
+
+.side-menu a {
+  display: block;
+  padding: 10px 30px;
+  color: #eee;
+  text-decoration: none;
+  font-size: 1.1em;
+}
+
+.side-menu a:hover {
+  background: #00ffcc;
+  color: #111;
+}
+
+.side-menu .close-btn {
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  font-size: 2em;
+  cursor: pointer;
+}
+
+/* Contenu principal */
+main {
+  padding: 20px;
+  max-width: 1000px;
+  margin: auto;
+  text-align: center;
+}
+
+/* Messages flash */
+.flashes {
+  list-style: none;
+  padding: 0;
+}
+
+.flashes li {
+  background: #333;
+  color: #fff;
+  margin: 5px 0;
+  padding: 10px;
+  border-left: 4px solid #00ffcc;
+}
+
+/* Formulaires */
+form input[type="text"],
+form input[type="password"],
+form input[type="search"],
+form textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  background: #222;
+  border: 1px solid #555;
+  color: #eee;
+  border-radius: 4px;
+}
+
+form button,
+form input[type="submit"] {
+  background: #00ffcc;
+  border: none;
+  color: #111;
+  padding: 10px 20px;
+  margin-top: 5px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+form button:hover,
+form input[type="submit"]:hover {
+  background: #00e6b8;
+}
+
+/* Playlist */
+.playlist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.playlist-item {
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 8px;
+  width: auto;
+  text-align: center;
+}
+
+.playlist-item audio,
+.playlist-item video {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* Messages */
+.conversation {
+  margin-top: 20px;
+}
+
+.message {
+  background: #1f1f1f;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.message strong {
+  color: #00ffcc;
+}
+
+/* Footer */
+footer {
+  padding: 15px;
+  background: #1f1f1f;
+  text-align: center;
+  border-top: 2px solid #00ffcc;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  font-size: 0.9em;
+  color: #aaa;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .playlist {
+    flex-direction: column;
+    align-items: center;
+  }
+}

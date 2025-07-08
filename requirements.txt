@@ -1,0 +1,7 @@
+Flask
+firebase-admin
+spotipy
+gunicorn
+yt_dlp
+flask_sqlalchemy
+flask_wtf

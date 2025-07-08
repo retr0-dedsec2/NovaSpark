@@ -1,0 +1,12 @@
+{% extends "base.html" %} {% block title %} Admin {% endblock %} {% block
+content %}
+<h1>Message de chat</h1>
+<form method="post">
+  <input id="csrf_token" name="csrf_token" type="hidden" value="...." />
+  <label for="message">Message :</label><br />
+  <textarea id="message" name="message" rows="4" cols="50">
+{{ message }}</textarea
+  ><br />
+  <button type="submit">Envoyer</button>
+</form>
+{% endblock %}
