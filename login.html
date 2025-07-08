@@ -1,70 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='styles.css') }}"
-    />
-    <title>NovaSpark - Login</title>
-  </head>
-  <style>
-    body {
-      background: url("{{ background_image }}") no-repeat center center;
-      background-size: cover;
-    }
-  </style>
-  <body>
-    <!-- Menu slide à droite -->
-    <div id="sideMenu" class="side-menu">
-      <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()"
-        >&times;</a
-      >
-      <a href="{{ url_for('index') }}">Home</a>
-      <a href="{{ url_for('upload') }}">Upload</a>
-      <a href="{{ url_for('playlist') }}">Playlist</a>
-      <a href="{{ url_for('search') }}">Search</a>
-      <a href="{{ url_for('contact') }}">Contact</a>
-      <a href="{{ url_for('login') }}">Login</a>
-      <a href="{{ url_for('register') }}">Register</a>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NovaSpark - Connexion</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div id="sideMenu" class="side-menu">
+    <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+    <a href="/index.html">Home</a>
+    <a href="/upload.html">Upload</a>
+    <a href="/playlist.html">Playlist</a>
+    <a href="/search.html">Search</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/register.html">Register</a>
+  </div>
+  <header class="nav">
+    <img src="/static/logo.png" class="logo" alt="Logo"/>
+    <div style="display:flex;align-items:center;gap:20px">
+      <span class="open-btn" onclick="openMenu()">☰ Menu</span>
     </div>
+  </header>
 
-    <!-- Barre de navigation -->
-    <header class="nav">
-      <div class="nav-left">
-        <img
-          src="{{ url_for('static', filename='logo.png') }}"
-          alt="NovaSpark Logo"
-          class="logo"
-        />
-        <span class="open-btn" onclick="openMenu()">☰ Menu</span>
-      </div>
-    </header>
+  <main>
+    <h1>Connexion</h1>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Nom d'utilisateur" required />
+      <input type="password" id="password" placeholder="Mot de passe" required />
+      <button type="submit">Se connecter</button>
+    </form>
+    <p id="loginStatus"></p>
+  </main>
 
-    <!-- Contenu principal -->
-    <main>
-      <h1>Connexion</h1>
-      <form class="login-form" method="post">
-        <input
-          type="text"
-          name="username"
-          placeholder="Nom d'utilisateur"
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Mot de passe"
-          required
-        />
-        <button type="submit">Se connecter</button>
-      </form>
-    </main>
-    <footer>
-      <p>© Contributor developer Gabin Gagno</p>
-      <p>© Director general Lenzo Cavalier</p>
-    </footer>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-  </body>
+  <footer>
+    <p>© Contributor developer Gabin Gagno</p>
+  </footer>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      // Pour la démo, accepter tout utilisateur
+      localStorage.setItem("username", username);
+      document.getElementById("loginStatus").textContent = "Connecté en tant que " + username;
+      setTimeout(() => window.location.href = "/index.html", 1000);
+    });
+  </script>
+</body>
 </html>
