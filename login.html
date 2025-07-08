@@ -2,22 +2,35 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NovaSpark - Connexion</title>
-  <link rel="stylesheet" href="/static/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NovaSpark - login</title>
+  <link rel="stylesheet" href="./static/styles.css" />
+  <link rel="icon" type="image/png" href="./static/logo.png" />
+  <script defer src="./static/script.js"></script>
+  <style>
+    body {
+      background: url("./static/background.png") no-repeat center center fixed;
+      background-size: cover;
+    }
+  </style>
 </head>
+
 <body>
+  <!-- Menu latéral -->
   <div id="sideMenu" class="side-menu">
     <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
-    <a href="/index.html">Home</a>
-    <a href="/upload.html">Upload</a>
-    <a href="/playlist.html">Playlist</a>
-    <a href="/search.html">Search</a>
-    <a href="/contact.html">Contact</a>
-    <a href="/register.html">Register</a>
+    <a href="./index.html">Home</a>
+    <a href="./upload.html">Upload</a>
+    <a href="./playlist.html">Playlist</a>
+    <a href="./search.html">Search</a>
+    <a href="./contact.html">Contact</a>
+    <a href="./register.html">Register</a>
+    <a href="./login.html">Login</a>
+    <a href="#" id="logoutLink" style="display:none;">Logout</a>
   </div>
+
   <header class="nav">
-    <img src="/static/logo.png" class="logo" alt="Logo"/>
+    <img src="./static/logo.png" class="logo" alt="Logo"/>
     <div style="display:flex;align-items:center;gap:20px">
       <span class="open-btn" onclick="openMenu()">☰ Menu</span>
     </div>
