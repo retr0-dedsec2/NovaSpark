@@ -1,35 +1,97 @@
-{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
-%}
-<style>
-  body {
-    background: url("{{ background_image }}") no-repeat center center;
-    background-size: cover;
-  }
-</style>
-<h1>Bienvenue sur NovaSpark</h1>
-<p>La plateforme musicale des hackers.</p>
-<h2>Vos musiques en favoris</h2>
-<!--<div id="favoritesContainer" class="playlist"></div>-->
-{% if session.get("username") %}
-<h2>Vos favoris récents</h2>
-{% if favorites %}
-<div class="playlist">
-  {% for file in favorites %}
-  <div class="playlist-item">
-    <span class="media-icon">
-      {{ '🎬' if file.endswith('.mp4') else '🎵' }}
-    </span>
-    <h3>{{ file }}</h3>
-    {% if file.endswith('.mp4') %}
-    <video controls width="200">
-      <source src="{{ url_for('uploaded_file', filename=file) }}" />
-    </video>
-    {% else %}
-    <audio controls src="{{ url_for('uploaded_file', filename=file) }}"></audio>
-    {% endif %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NovaSpark - Accueil</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="icon" type="image/png" href="/static/logo.png" />
+  <script defer src="/static/script.js"></script>
+  <style>
+    body {
+      background: url("/static/background.png") no-repeat center center fixed;
+      background-size: cover;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Menu latéral -->
+  <div id="sideMenu" class="side-menu">
+    <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+    <a href="/index.html">Home</a>
+    <a href="/upload.html">Upload</a>
+    <a href="/playlist.html">Playlist</a>
+    <a href="/search.html">Search</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/register.html">Register</a>
+    <a href="/login.html">Login</a>
+    <a href="#" id="logoutLink" style="display:none;">Logout</a>
   </div>
-  {% endfor %}
-</div>
-{% else %}
-<p>Aucun favori enregistré.</p>
-{% endif %} {% endif %} {% endblock %}
+
+  <!-- Barre de navigation -->
+  <header class="nav">
+    <img src="/static/logo.png" class="logo" alt="Logo" />
+    <div style="display: flex; align-items: center; gap: 20px">
+      <p class="user-info" id="userInfo"></p>
+      <span class="open-btn" onclick="openMenu()">☰ Menu</span>
+    </div>
+  </header>
+
+  <!-- Contenu principal -->
+  <main>
+    <h1 id="welcomeTitle">Bienvenue sur NovaSpark</h1>
+    <p id="welcomeMessage">La plateforme musicale des hackers.</p>
+
+    <h2>Vos favoris récents</h2>
+    <div id="favoritesContainer" class="playlist"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>© Contributor developer Gabin Gagno</p>
+    <p>© Director general Lenzo Cavalier</p>
+  </footer>
+
+  <script>
+    // Exemple de "session" simulée dans localStorage
+    const username = localStorage.getItem("username");
+
+    // Affiche le nom d'utilisateur si connecté
+    if (username) {
+      document.getElementById("userInfo").textContent = "Connecté : " + username;
+      document.getElementById("logoutLink").style.display = "block";
+    } else {
+      document.getElementById("logoutLink").style.display = "none";
+    }
+
+    // Déconnexion simulée
+    document.getElementById("logoutLink").addEventListener("click", () => {
+      localStorage.removeItem("username");
+      location.reload();
+    });
+
+    // Exemple de favoris simulés en JS
+    const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+
+    const container = document.getElementById("favoritesContainer");
+    if (favorites.length === 0) {
+      container.innerHTML = "<p>Aucun favori enregistré.</p>";
+    } else {
+      favorites.forEach(file => {
+        const div = document.createElement("div");
+        div.className = "playlist-item";
+        div.innerHTML = `
+          <span class="media-icon">${file.endsWith(".mp4") ? "🎬" : "🎵"}</span>
+          <h3>${file}</h3>
+          ${file.endsWith(".mp4") 
+            ? `<video controls width="200" src="/assets/${file}"></video>`
+            : `<audio controls src="/assets/${file}"></audio>`
+          }
+        `;
+        container.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
