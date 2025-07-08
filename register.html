@@ -1,69 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NovaSpark - Inscription</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='styles.css') }}"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      href="{{ url_for('static', filename='logo.png') }}"
-    />
-  </head>
-  <body>
-    <!-- Menu slide -->
-    <div id="sideMenu" class="side-menu">
-      <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()"
-        >&times;</a
-      >
-      <a href="{{ url_for('index') }}">Home</a>
-      <a href="{{ url_for('upload') }}">Upload</a>
-      <a href="{{ url_for('playlist') }}">Playlist</a>
-      <a href="{{ url_for('search') }}">Search</a>
-      <a href="{{ url_for('contact') }}">Contact</a>
-      <a href="{{ url_for('login') }}">Login</a>
-      <a href="{{ url_for('register') }}">Register</a>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NovaSpark - Inscription</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div id="sideMenu" class="side-menu">
+    <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+    <a href="/index.html">Home</a>
+    <a href="/upload.html">Upload</a>
+    <a href="/playlist.html">Playlist</a>
+    <a href="/search.html">Search</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/login.html">Login</a>
+  </div>
+  <header class="nav">
+    <img src="/static/logo.png" class="logo" alt="Logo"/>
+    <div style="display:flex;align-items:center;gap:20px">
+      <span class="open-btn" onclick="openMenu()">☰ Menu</span>
     </div>
+  </header>
 
-    <!-- Header -->
-    <header class="nav">
-      <img
-        src="{{ url_for('static', filename='logo.png') }}"
-        class="logo"
-        alt="Logo"
-      />
-      <div style="display: flex; align-items: center; gap: 20px">
-        <span class="open-btn" onclick="openMenu()">☰ Menu</span>
-      </div>
-    </header>
+  <main>
+    <h1>Créer un compte</h1>
+    <form id="registerForm">
+      <input type="text" id="newUsername" placeholder="Nom d'utilisateur" required />
+      <input type="password" id="newPassword" placeholder="Mot de passe" required />
+      <button type="submit">S'inscrire</button>
+    </form>
+    <p id="registerStatus"></p>
+  </main>
 
-    <main>
-      <h1>Créer un compte</h1>
-      <form method="post">
-        <input
-          type="text"
-          name="username"
-          placeholder="Nom d'utilisateur"
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Mot de passe"
-          required
-        />
-        <button type="submit">S'inscrire</button>
-      </form>
-    </main>
+  <footer>
+    <p>© Contributor developer Gabin Gagno</p>
+  </footer>
 
-    <footer>
-      <p>© Contributor developer Gabin Gagno</p>
-      <p>© Director general Lenzo Cavalier</p>
-    </footer>
-    <script defer src="{{ url_for('static', filename='script.js') }}"></script>
-  </body>
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const username = document.getElementById("newUsername").value;
+      const password = document.getElementById("newPassword").value;
+      localStorage.setItem("username", username);
+      document.getElementById("registerStatus").textContent = "Compte créé avec succès.";
+      setTimeout(() => window.location.href = "/index.html", 1000);
+    });
+  </script>
+</body>
 </html>
