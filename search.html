@@ -1,40 +1,61 @@
-{% extends "base.html" %} {% block title %}Search{% endblock %} {% block content
-%}
-<h1>Recherche</h1>
-
-<form method="post">
-  <input
-    type="text"
-    name="query"
-    placeholder="Rechercher un fichier ou un utilisateur..."
-    value="{{ query }}"
-  />
-  <button type="submit">Rechercher</button>
-</form>
-
-{% if query %}
-<h2>Résultats pour "{{ query }}"</h2>
-
-{% if results or users %}
-<div class="playlist">
-  {% for file in results %}
-  <div class="playlist-item">
-    <span class="media-icon">
-      {{ '🎬' if file.endswith('.mp4') else '🎵' }}
-    </span>
-    <h3>{{ file }}</h3>
-    <audio controls src="{{ url_for('uploaded_file', filename=file) }}"></audio>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NovaSpark - Recherche</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div id="sideMenu" class="side-menu">
+    <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+    <a href="/index.html">Home</a>
+    <a href="/upload.html">Upload</a>
+    <a href="/playlist.html">Playlist</a>
+    <a href="/search.html">Search</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/register.html">Register</a>
+    <a href="/login.html">Login</a>
   </div>
-  {% endfor %}
-</div>
+  <header class="nav">
+    <img src="/static/logo.png" class="logo" alt="Logo"/>
+    <div style="display:flex;align-items:center;gap:20px">
+      <span class="open-btn" onclick="openMenu()">☰ Menu</span>
+    </div>
+  </header>
 
-{% if users %}
-<h3>Utilisateurs trouvés</h3>
-<ul>
-  {% for user in users %}
-  <li><a href="{{ url_for('profile', username=user) }}">{{ user }}</a></li>
-  {% endfor %}
-</ul>
-{% endif %} {% else %}
-<p>Aucun résultat.</p>
-{% endif %} {% endif %} {% endblock %}
+  <main>
+    <h1>Recherche de musiques</h1>
+    <input type="text" id="searchInput" placeholder="Nom du fichier..." />
+    <button onclick="search()">Rechercher</button>
+    <div id="searchResults"></div>
+  </main>
+
+  <footer>
+    <p>© Contributor developer Gabin Gagno</p>
+  </footer>
+
+  <script>
+    function search(){
+      const query = document.getElementById("searchInput").value.toLowerCase();
+      const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+      const results = favorites.filter(f => f.toLowerCase().includes(query));
+      const container = document.getElementById("searchResults");
+      container.innerHTML = "";
+      if(results.length === 0){
+        container.innerHTML = "<p>Aucun résultat trouvé.</p>";
+      } else {
+        results.forEach(file => {
+          const div = document.createElement("div");
+          div.className = "playlist-item";
+          div.innerHTML = `
+            <span class="media-icon">${file.endsWith(".mp4") ? "🎬" : "🎵"}</span>
+            <h3>${file}</h3>
+          `;
+          container.appendChild(div);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
