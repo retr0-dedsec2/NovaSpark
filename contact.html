@@ -1,5 +1,35 @@
-{% extends "base.html" %} {% block title %}Contact{% endblock %} {% block
-content %}
-<h1>Contact</h1>
-<p>Pour toute question, contactez-nous par email.</p>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NovaSpark - Contact</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div id="sideMenu" class="side-menu">
+    <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+    <a href="/index.html">Home</a>
+    <a href="/upload.html">Upload</a>
+    <a href="/playlist.html">Playlist</a>
+    <a href="/search.html">Search</a>
+    <a href="/register.html">Register</a>
+    <a href="/login.html">Login</a>
+  </div>
+  <header class="nav">
+    <img src="/static/logo.png" class="logo" alt="Logo"/>
+    <div style="display:flex;align-items:center;gap:20px">
+      <span class="open-btn" onclick="openMenu()">☰ Menu</span>
+    </div>
+  </header>
+
+  <main>
+    <h1>Contact</h1>
+    <p>Pour toute question, envoyez un email à <a href="mailto:support@novaspark.com">support@novaspark.com</a></p>
+  </main>
+
+  <footer>
+    <p>© Contributor developer Gabin Gagno</p>
+  </footer>
+</body>
+</html>
