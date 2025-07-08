@@ -1,5 +1,34 @@
-{% extends "base.html" %} {% block title %}Admin{% endblock %} {% block content
-%}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NovaSpark - Accueil</title>
+  <link rel="stylesheet" href="./static/styles.css" />
+  <link rel="icon" type="image/png" href="./static/logo.png" />
+  <script defer src="./static/script.js"></script>
+  <style>
+    body {
+      background: url("./static/background.png") no-repeat center center fixed;
+      background-size: cover;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Menu latéral -->
+  <div id="sideMenu" class="side-menu">
+    <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+    <a href="./index.html">Home</a>
+    <a href="./upload.html">Upload</a>
+    <a href="./playlist.html">Playlist</a>
+    <a href="./search.html">Search</a>
+    <a href="./contact.html">Contact</a>
+    <a href="./register.html">Register</a>
+    <a href="./login.html">Login</a>
+    <a href="#" id="logoutLink" style="display:none;">Logout</a>
+  </div>
+
 <h1>Administration</h1>
 <form method="post">
   <label>Titre du site</label><br />
@@ -25,4 +54,5 @@
 
   <button type="submit">Enregistrer</button>
 </form>
-{% endblock %}
+</body>
+</html>
