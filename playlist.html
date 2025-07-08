@@ -1,28 +1,72 @@
-{% extends "base.html" %} {% block title %}Playlist{% endblock %} {% block
-content %}
-<style>
-  body {
-    background: url("{{ background_image }}") no-repeat center center;
-    background-size: cover;
-  }
-</style>
-<h1>Bibliothèque des musiques</h1>
-{% if files %}
-<div class="playlist">
-  {% for file in files %}
-  <div class="playlist-item">
-    <span class="media-icon">
-      {{ '🎬' if file.endswith('.mp4') else '🎵' }}
-    </span>
-    <h3>{{ file }}</h3>
-    <p>Ajouté par : {{ uploads.get(file, "Inconnu") }}</p>
-    <audio controls src="{{ url_for('uploaded_file', filename=file) }}"></audio>
-    <a href="{{ url_for('add_favorite', filename=file) }}"
-      >⭐ Ajouter aux favoris</a
-    >
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NovaSpark - Playlist</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script defer src="/static/script.js"></script>
+</head>
+<body>
+  <div id="sideMenu" class="side-menu">
+    <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+    <a href="/index.html">Home</a>
+    <a href="/upload.html">Upload</a>
+    <a href="/playlist.html">Playlist</a>
+    <a href="/search.html">Search</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/register.html">Register</a>
+    <a href="/login.html">Login</a>
+    <a href="#" id="logoutLink" style="display:none;">Logout</a>
   </div>
-  {% endfor %}
-</div>
-{% else %}
-<p>Aucune musique disponible.</p>
-{% endif %} {% endblock %}
+  <header class="nav">
+    <img src="/static/logo.png" class="logo" alt="Logo"/>
+    <div style="display:flex;align-items:center;gap:20px">
+      <p class="user-info" id="userInfo"></p>
+      <span class="open-btn" onclick="openMenu()">☰ Menu</span>
+    </div>
+  </header>
+
+  <main>
+    <h1>Bibliothèque des musiques</h1>
+    <div id="playlistContainer"></div>
+  </main>
+
+  <footer>
+    <p>© Contributor developer Gabin Gagno</p>
+  </footer>
+
+  <script>
+    const username = localStorage.getItem("username");
+    if(username) {
+      document.getElementById("userInfo").textContent = "Connecté : " + username;
+      document.getElementById("logoutLink").style.display = "block";
+    }
+
+    document.getElementById("logoutLink").addEventListener("click", () => {
+      localStorage.removeItem("username");
+      location.href = "/index.html";
+    });
+
+    const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+    const container = document.getElementById("playlistContainer");
+    if(favorites.length === 0){
+      container.innerHTML = "<p>Aucune musique enregistrée.</p>";
+    } else {
+      favorites.forEach(file => {
+        const div = document.createElement("div");
+        div.className = "playlist-item";
+        div.innerHTML = `
+          <span class="media-icon">${file.endsWith(".mp4") ? "🎬" : "🎵"}</span>
+          <h3>${file}</h3>
+          ${file.endsWith(".mp4") 
+            ? `<video controls width="200" src="/assets/${file}"></video>`
+            : `<audio controls src="/assets/${file}"></audio>`
+          }
+        `;
+        container.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
